@@ -1,0 +1,121 @@
+# Embodied AI Operating System — Requirements
+# Phase 1: Foundation (LLM, RAG, CLI)
+# Phase 2: Tooling + System Control
+# Phase 3: Voice Interface
+
+# ====== PHASE 1 — CORE ======
+
+# LLM Integration
+ollama>=0.1.0
+
+# Vector Database & Embeddings (RAG)
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+
+# CLI & Utilities
+click>=8.1.0
+colorama>=0.4.6
+pyyaml>=6.0
+
+# Data Processing
+numpy>=1.24.0
+pandas>=1.5.0
+
+# Async & Performance
+aiohttp>=3.8.0
+
+# Development
+python-dotenv>=1.0.0
+
+
+# ====== PHASE 2 — TOOLS ======
+
+# (No new pip requirements — uses stdlib subprocess, pathlib, ast, difflib)
+
+
+# ====== PHASE 3 — VOICE ======
+
+# Speech-to-Text: OpenAI Whisper (local, offline)
+# Installs ffmpeg dependency automatically via pip
+openai-whisper>=20231117
+
+# Audio capture and playback
+sounddevice>=0.4.6
+soundfile>=0.12.1
+
+# TTS Backend — choose one or more:
+
+# Option A: Microsoft Edge neural TTS (free, high quality, needs internet)
+edge-tts>=6.1.9
+
+# Option B: pyttsx3 — OS-level SAPI/espeak (zero internet, always works on Windows)
+pyttsx3>=2.90
+
+# Option C: Coqui TTS (local neural TTS — heavier install, GPU recommended)
+# Uncomment if you want high-quality offline TTS:
+# TTS>=0.22.0
+
+# NumPy (already in Phase 1, listed here for clarity re: audio arrays)
+numpy>=1.24.0
+
+
+# ====== PHASE 7 — LoRA FINE-TUNING ======
+
+# HuggingFace core stack
+transformers>=4.40.0
+datasets>=2.18.0
+accelerate>=0.29.0
+
+# PEFT — LoRA adapter training
+peft>=0.10.0
+
+# Supervised Fine-Tuning trainer
+trl>=0.8.0
+
+# 4-bit / 8-bit quantization — enabled (Nvidia 4070 Ti Super, CUDA 12.x)
+bitsandbytes>=0.43.0
+
+# ROUGE evaluation metric
+rouge-score>=0.1.2
+
+# PyTorch with CUDA 12.1 (install separately via pip index url):
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+# Flash Attention 2 — optional, ~20% faster training on Ada Lovelace GPUs
+# Requires Microsoft Visual C++ Build Tools (cl.exe) on Windows before building:
+#   1. Install: https://aka.ms/vs/17/release/vs_BuildTools.exe  (select 'Desktop development with C++')
+#   2. pip install flash-attn --no-build-isolation
+
+
+# ====== PHASE 4 — API + UI ======
+
+# Backend API and dashboard server
+fastapi>=0.111.0
+uvicorn>=0.30.0
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+
+# Standalone desktop application
+PyQt6>=6.7.0
+
+# Required for audio upload endpoint (/api/stt/transcribe)
+python-multipart>=0.0.9
+
+
+# ====== PHASE 6 — LEARNING / DATASET INGESTION ======
+
+# Science simulation graphing
+matplotlib>=3.8.0
+
+# Physics-constrained neural models
+torch>=2.2.0
+
+# Hugging Face dataset download (optional — only needed for HuggingFace import)
+# Comment out for fully offline deployments
+datasets>=2.18.0
+
+# PDF parsing (optional — only needed if importing PDF files)
+# Choose one:
+pypdf>=4.0.0
+# pdfplumber>=0.10.0   # heavier but better for complex PDFs
+

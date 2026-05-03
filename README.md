@@ -1,278 +1,636 @@
-# Nagatha AI Control Center
+# Embodied AI System - Complete Documentation
 
-A local AI interface that pairs with [Ollama](https://ollama.ai) for running AI models entirely on your machine. Includes smart home / IoT control, the Nagatha AI persona with voice interaction, training data management, and a connected devices registry.
+```
+╔════════════════════════════════════════════════════════════════════╗
+║    EMBODIED AI OPERATING SYSTEM - PHASE 9 / CORE STACK           ║
+║  Local LLM + Voice + Desktop App + Science Lab + Managed Models  ║
+╚════════════════════════════════════════════════════════════════════╝
+```
 
 ---
 
-## Requirements
+## 📖 Table of Contents
 
-Install these before anything else:
-
-| Tool | Version | Link |
-|------|---------|------|
-| Node.js | 20 or higher | https://nodejs.org |
-| pnpm | 9 or higher | `npm install -g pnpm` |
-| PostgreSQL or Docker Desktop | local runtime | https://postgresql.org/download / https://www.docker.com/products/docker-desktop |
-| Ollama | latest | https://ollama.ai |
+- [System Overview](#system-overview)
+- [Current Features (Phase 4-5)](#current-features-phase-4-5)
+- [Quick Start](#quick-start)
+- [Operating Modes](#operating-modes)
+- [Configuration](#configuration)
+- [Architecture](#architecture)
+- [Components](#components)
+- [Usage Examples](#usage-examples)
+- [Troubleshooting](#troubleshooting)
+- [Documentation](#documentation)
 
 ---
 
-## Setup in VS Code
+## System Overview
 
-### Windows quick start
+**Embodied AI System** is a modular, local-first AI platform that combines:
+- 🧠 **Local LLM** (Ollama - fully offline capable)
+- 🎤 **Voice I/O** (Whisper STT + multi-backend TTS)
+- 🎨 **Web Dashboard** (FastAPI + real-time UI)
+- 🏠 **IoT Control** (Home Assistant + local network discovery)
+- 💾 **Memory/RAG** (ChromaDB vector embeddings)
+- 🔒 **Security** (Sandboxing + approval workflows)
+- 🛠️ **Tool System** (File I/O, code execution, network ops)
 
-This import is already loaded at `P:\Code\Source_Code\Nagatha_AI_Control_Center`.
+**Deployment:** Private network, single-machine, fully offline after initial setup.
 
-1. Start Docker Desktop if you want the script to provision PostgreSQL locally.
-2. Run `powershell -ExecutionPolicy Bypass -File .\start.ps1 -Action all`
-3. Or run the VS Code task `Start Nagatha AI Control (script)`
-4. Or press `F5` and choose `Nagatha AI Control (Local)`
+**Status:** Production-ready through Phase 9 (Core Stack baseline). All major layers operational.
 
-That startup path bootstraps `.env`, provisions a local PostgreSQL container when native PostgreSQL is not installed, pushes the Drizzle schema, then launches the API server, frontend, and browser.
+---
 
-### 1. Open the project
+## Current Features (Phase 9 — Core Stack)
 
-Extract the archive, then open the folder in VS Code:
+### ✅ Phase 1-2: Core Intelligence & Tooling
+- CLI REPL with multi-turn conversation
+- RAG memory with semantic search (`ChromaDB`)
+- Tool execution with permission checking
+- File I/O and code execution
+- Structured logging with audit trail
+- Multi-step task planning
 
-```
-File → Open Folder → select the extracted nagatha-ai folder
-```
+### ✅ Phase 3: Voice Interaction
+- Real-time speech-to-text (Whisper)
+- Multiple TTS backends (`edge-tts`, `coqui`, `pyttsx3`)
+- Push-to-talk mode
+- Voice activity detection (VAD) with cancellable listening
 
-Or from the terminal:
+### ✅ Phase 4: Web Dashboard & API
+- `FastAPI` web server
+- Real-time dashboard UI
+- Model switching and prompt tuning
+- Memory inspection
+- Tool permission management
+- WebSocket support for real-time updates
 
+### ✅ Phase 5: IoT & Network Discovery
+- Home Assistant integration
+- ARP-based device discovery
+- Safe port scanning (top 20 ports, timeouts)
+- Device classification (router, phone, IoT, PC, etc.)
+- `SQLite` persistence (scan history with `scan_id` tracking)
+- Merged discovery results (`LocalNetworkScanner` + `NetworkDiscovery`)
+- Device registry and control
+
+### ✅ Phase 6: Security & Science Research
+- Approval queue for sensitive tool operations
+- Tool sandboxing with resource limits
+- Full audit logging with operation trails
+- `SimulationEnvironment` — iterative hypothesis testing
+- `ScientificLiteratureSystem` — persistent `Chroma`-backed vector search
+- `PhysicsConstrainedRegressor` — hybrid physics/neural model
+- `ExperimentTracker` — reproducible run logging (JSONL + per-run JSON)
+
+### ✅ Phase 7: Desktop Application
+- Standalone `PyQt6` desktop app (`desktop_entry.py`)
+- Reskinned UI (gradients, neon status chips, card layout)
+- `DesktopVoiceController` with synchronized STT/TTS state machine
+- Stop Voice button + `Esc` keyboard shortcut
+- `DiagnosticsPanel` tab showing service health at launch
+- Desktop shortcut installer (`scripts/install-shortcut.ps1`)
+
+### ✅ Phase 8: Science Lab Dashboard
+- Science Lab nav view in web dashboard
+- `/api/science/*` REST endpoints
+- Experiment config YAMLs (`config/experiments/`)
+- `matplotlib` plotting with graceful degradation
+
+### ✅ Phase 9: Core Stack Baseline
+- Ollama model stack reset and locked to 8 production models
+- `ModelSelector` updated with `math` task category
+- Per-task routing: code→`deepseek-coder`, math/reasoning→`deepseek-r1`, chat→`qwen2.5`, vision→`llava`
+- Runtime embeddings use local `all-MiniLM-L6-v2`; voice STT uses Whisper `base`
+- `scripts/reset_ollama_models2.ps1` for repeatable stack resets
+
+---
+
+## Quick Start
+
+### Fastest Setup (One Command)
+
+**Windows:**
 ```powershell
-code P:\Code\Source_Code\Nagatha_AI_Control_Center
+.\quickstart.bat
 ```
 
----
-
-### 2. Install dependencies
-
-Open the VS Code integrated terminal (`Ctrl+`` ` or **Terminal → New Terminal**) and run:
-
+**macOS/Linux:**
 ```bash
-pnpm install
+chmod +x quickstart.sh
+./quickstart.sh
 ```
 
----
+### Manual Setup
 
-### 3. Configure environment variables
-
-Bootstrap the local `.env` file:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\start.ps1 -Action init-env
-```
-
-Open `.env` and edit it:
-
-```env
-DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/nagatha_ai
-PGHOST=localhost
-PGPORT=5432
-PGUSER=postgres
-PGPASSWORD=yourpassword
-PGDATABASE=nagatha_ai
-SESSION_SECRET=any-random-string-here
-NAGATHA_PG_CONTAINER=nagatha-postgres
-NAGATHA_PG_VOLUME=nagatha-postgres-data
-```
-
-> **Tip:** If PostgreSQL is not installed locally but Docker Desktop is available, `start.ps1 -Action db-up` will start a local `postgres:16` container and persist its data in a Docker volume.
-
----
-
-### 4. Push the database schema
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\start.ps1 -Action db-up
-powershell -ExecutionPolicy Bypass -File .\start.ps1 -Action schema
-```
-
-You should see: `[✓] Changes applied`
-
----
-
-### 5. Start Ollama
-
-In a separate terminal (or it may already be running as a system service):
-
-```powershell
+**1. Install Ollama**
+```bash
+# Download from https://ollama.ai
+# Start Ollama in background/separate terminal
 ollama serve
 ```
 
-Pull a model if you haven't already:
+**2. Install Python Dependencies**
+```bash
+python -m venv venv
+# Windows: venv\Scripts\activate
+# macOS/Linux: source venv/bin/activate
 
-```powershell
-ollama pull llama3.2
-# or any model: mistral, gemma3, phi4, etc.
+pip install -r requirements.txt
+```
+
+**3. Download the Active Runtime Models**
+```bash
+# Active Ollama routing stack:
+ollama pull qwen2.5         # Primary brain / fallback (~4.7 GB)
+ollama pull deepseek-coder  # Code tasks (~776 MB)
+ollama pull deepseek-r1     # Math / deep reasoning (~5.2 GB)
+ollama pull mistral         # Creative / fast general (~4.4 GB)
+ollama pull llava           # Vision (~4.7 GB)
+
+# Non-Ollama runtime models come from Python packages/config:
+# - sentence-transformers: all-MiniLM-L6-v2 (embeddings)
+# - Whisper: base (speech-to-text)
+
+# Or run the reset script:
+powershell -ExecutionPolicy Bypass -File scripts/reset_ollama_models2.ps1
+```
+
+**4. Verify Installation**
+```bash
+python run_smoke_tests.py
+# Should show: 42/46 passed, 0 failed, 4 skipped
+```
+
+**5. Run the System**
+```bash
+python main.py --mode repl
+# Or: --mode cli, --mode voice, --mode dashboard
 ```
 
 ---
 
-### 6. Run the app
+## Operating Modes
 
-The easiest way on Windows is the included PowerShell entrypoint:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\start.ps1 -Action all
+### 1. REPL Mode (CLI Interactive)
+```bash
+python main.py --mode repl
 ```
+- Multi-turn conversation
+- Type commands, get responses
+- Memory persists across turns
+- Best for: Development, exploration
 
-That bootstraps `.env`, starts PostgreSQL when available, pushes the schema, opens separate PowerShell windows for the API and frontend, and opens the browser.
-
-If you want to run the pieces manually, use separate terminals:
-
-**Terminal 1 — API server:**
-```powershell
-powershell -ExecutionPolicy Bypass -File .\start.ps1 -Action api
+### 2. CLI Mode (Single Query)
+```bash
+python main.py --mode cli
 ```
+- One query, one response, exit
+- Non-interactive
+- Best for: Scripting, one-offs
 
-**Terminal 2 — Frontend:**
-```powershell
-powershell -ExecutionPolicy Bypass -File .\start.ps1 -Action frontend
+### 3. Voice Mode (Speech I/O)
+```bash
+python main.py --mode voice
+
+# Or push-to-talk
+python main.py --mode voice --input ptt
 ```
+- Speak → STT → process → TTS → speak
+- Real-time audio processing
+- Best for: Hands-free operation
 
-Then open **http://localhost:3000** in your browser.
+### 4. Dashboard Mode (Web UI)
+```bash
+python main.py --mode dashboard
+# Open http://localhost:8000
+```
+- Browser-based interface
+- Real-time updates
+- Model/prompt controls
+- Memory inspection
+- Network/IoT monitoring
+- Best for: Operations
+
+### 5. Deployment Mode
+```bash
+python main.py --deploy-config config/config.yaml
+```
+- Configuration overlay
+- Model/port overrides
+- Environment-specific settings
+- Best for: Production
 
 ---
 
-## VS Code Tasks and Launch (optional)
+## Configuration
 
-The imported project includes a `.vscode/tasks.json` file and a `.vscode/launch.json` profile for **Terminal → Run Task** or `F5` startup.
-
-```json
-{
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "Initialize Local Environment",
-      "type": "shell",
-      "command": "powershell -ExecutionPolicy Bypass -File .\\start.ps1 -Action init-env"
-    },
-    {
-      "label": "Start Local PostgreSQL",
-      "type": "shell",
-      "command": "powershell -ExecutionPolicy Bypass -File .\\start.ps1 -Action db-up"
-    },
-    {
-      "label": "Start API Server",
-      "type": "shell",
-      "command": "powershell -ExecutionPolicy Bypass -File .\\start.ps1 -Action api",
-      "group": "build",
-      "presentation": { "panel": "dedicated" }
-    },
-    {
-      "label": "Start Frontend",
-      "type": "shell",
-      "command": "powershell -ExecutionPolicy Bypass -File .\\start.ps1 -Action frontend",
-      "group": "build",
-      "presentation": { "panel": "dedicated" }
-    },
-    {
-      "label": "Start Nagatha AI Control (script)",
-      "type": "shell",
-      "command": "powershell -ExecutionPolicy Bypass -File .\\start.ps1 -Action all"
-    }
-  ]
-}
-```
-
-The launch target `Nagatha AI Control (Local)` uses that script task as its pre-launch step and opens the app in Edge.
-
----
-
-## App Pages
-
-| Page | URL | What it does |
-|------|-----|--------------|
-| Dashboard | http://localhost:3000/ | System overview — Ollama status, session stats, device counts |
-| AI Chat | http://localhost:3000/chat | Chat with any locally downloaded Ollama model |
-| Nagatha Agent | http://localhost:3000/nagatha | AI persona with animated orb, voice input, text-to-speech, HITL review |
-| IoT Control | http://localhost:3000/iot | Register and command smart home / IoT devices via HTTP |
-| Training Data | http://localhost:3000/training | Submit prompt/response pairs to improve your AI |
-| Connected Devices | http://localhost:3000/devices | Register WiFi/mobile devices for future integration |
-| Settings | http://localhost:3000/settings | Ollama URL, model selection, Nagatha system prompt, voice config |
-
----
-
-## Configuring Ollama
-
-The Settings page (http://localhost:3000/settings) lets you set:
-
-- **Ollama URL** — defaults to `http://localhost:11434`. Change this if Ollama runs on a different machine on your network.
-- **Default model** — picked from your locally downloaded models.
-- **Nagatha system prompt** — the personality/instructions for the Nagatha persona.
-
-Settings are saved in your browser's local storage.
-
----
-
-## IoT / Home Control
-
-Devices are registered with an HTTP endpoint URL. When you send a command from the IoT page, the app POSTs:
-
-```json
-{ "command": "toggle", "payload": {} }
-```
-
-to that device's URL. Works with:
-
-- **Home Assistant** webhooks
-- **ESPHome** HTTP API
-- **Custom ESP32 / Arduino** firmware with an HTTP server
-- Any device that accepts HTTP POST requests
-
----
-
-## Voice Features (Nagatha Page)
-
-- **Voice input** uses the browser's built-in Speech Recognition API — works best in Chrome or Edge
-- **Text-to-speech** uses the browser's built-in Speech Synthesis API
-- Configure voice, speed, and pitch in **Settings**
-- Allow microphone permission when the browser prompts
-
----
-
-## Project Structure
+### Configuration Files
 
 ```
-nagatha-ai/
-├── artifacts/
-│   ├── nagatha-ai/          # React + Vite frontend
-│   │   └── src/
-│   │       ├── pages/       # Dashboard, Chat, Nagatha, IoT, Training, Devices, Settings
-│   │       └── components/  # UI components
-│   └── api-server/          # Express API server
-│       └── src/
-│           └── routes/      # ollama, chat, training, iot, devices
-├── lib/
-│   ├── db/src/schema/       # PostgreSQL schema (Drizzle ORM)
-│   ├── api-spec/            # OpenAPI specification
-│   └── api-client-react/    # Auto-generated React Query hooks
-├── .env.example             # Copy to .env and configure
-├── start.sh                 # One-command startup script
-└── LOCAL_SETUP.md           # Full setup reference
+config/
+├── phase1_config.yaml              # Core LLM & memory
+├── phase2_config.yaml              # Logging & planning
+├── phase3_config.yaml              # Voice settings
+├── phase4_config.yaml              # Dashboard & API
+├── phase4_integration_map.yaml     # IoT & integrations
+└── config.yaml                     # Deployment overlay
+```
+
+### Quick Configuration Examples
+
+**Change LLM Model:**
+```yaml
+# config/phase1_config.yaml
+ollama:
+  model: "auto"          # or pin qwen2.5:latest / deepseek-r1:latest
+  fallback_model: "qwen2.5:latest"
+
+model_routing:
+  code: "deepseek-coder:latest"
+  temperature: 0.7       # 0=deterministic, 1=creative
+```
+
+**Enable Home Assistant:**
+```yaml
+# config/phase4_integration_map.yaml
+iot:
+  home_assistant:
+    enabled: true
+    base_url: "http://homeassistant.local:8123"
+    token: "your_token_here"
+```
+
+**Change Dashboard Port:**
+```yaml
+# config/phase4_config.yaml
+ui:
+  dashboard:
+    port: 8001           # If 8000 is in use
+```
+
+**Run with Overrides:**
+```bash
+python main.py \
+  --mode dashboard \
+  --model qwen2.5:latest \
+  --port 8001 \
+  --offline
+```
+
+---
+
+## Architecture
+
+### System Layers
+
+```
+┌─ PRESENTATION LAYER ─────────────────────┐
+│  CLI  │  Voice  │  Dashboard  │  API    │
+└────────────────────┬──────────────────────┘
+                     │
+┌─ ORCHESTRATION LAYER ────────────────────┐
+│  TaskPlanner  │  Orchestrator  │  Logger │
+└────────────────────┬──────────────────────┘
+                     │
+┌─ COGNITION LAYER ────────────────────────┐
+│  CognitionEngine (Ollama inference)      │
+└────────────────────┬──────────────────────┘
+                     │
+┌─ EXECUTION LAYER ────────────────────────┐
+│  ToolExecutor  │  SecurityManager │ Tools│
+└────────────────────┬──────────────────────┘
+                     │
+┌─ MEMORY LAYER ───────────────────────────┐
+│  RAGSystem  │  ChromaDB  │  Session Store │
+└────────────────────┬──────────────────────┘
+                     │
+┌─ INTEGRATION LAYER ──────────────────────┐
+│  IoTManager  │  NetworkDiscovery  │ HA  │
+└──────────────────────────────────────────┘
+```
+
+### Request Flow
+
+```
+User Input → Parse → Log → Plan → Retrieve Context → LLM
+                                        ↑
+                                        │
+                              Tool Results (loop back)
+                                        │
+LLM Output → Format Response → Output (CLI/Voice/API)
+```
+
+---
+
+## Components
+
+### Core Modules
+
+| Module | Purpose | Status |
+|--------|---------|--------|
+| `core/agent.py` | Main intelligence loop | ✅ |
+| `core/orchestrator.py` | Workflow management | ✅ |
+| `core/cognition.py` | LLM interface | ✅ |
+| `core/planner.py` | Multi-step task planning | ✅ |
+| `core/structured_logger.py` | Audit logging | ✅ |
+| `memory/rag.py` | Context retrieval | ✅ |
+| `models/ollama_client.py` | Ollama HTTP client | ✅ |
+| `models/selector.py` | Auto task-routing (code/math/reasoning/vision) | ✅ |
+| `voice/stt.py` | Whisper speech-to-text | ✅ |
+| `voice/tts.py` | Multi-backend TTS | ✅ |
+| `ui/desktop_app.py` | PyQt6 desktop application | ✅ |
+| `ui/dashboard_api.py` | FastAPI backend + science endpoints | ✅ |
+| `science/simulation.py` | Iterative hypothesis simulation | ✅ |
+| `science/literature.py` | Chroma-backed literature search | ✅ |
+| `science/hybrid_model.py` | Physics-constrained neural model | ✅ |
+| `science/experiment_tracker.py` | Reproducible run logging | ✅ |
+| `iot/manager.py` | IoT device management | ✅ |
+| `security/sandbox.py` | Tool sandboxing | ✅ |
+| **tools/base_tools.py** | File/code execution | ✅ |
+| **security/sandbox.py** | Permissions & limits | ✅ |
+| **voice/stt.py** | Speech-to-text | ✅ |
+| **voice/tts.py** | Text-to-speech | ✅ |
+| **iot/manager.py** | IoT orchestration | ✅ |
+| **iot/scanner.py** | Network discovery | ✅ **NEW** |
+| **ui/dashboard_api.py** | Web API | ✅ |
+
+### New in Phase 5
+
+**iot/scanner.py - NetworkDiscovery**
+- ARP-based device discovery
+- Safe port scanning (timeouts)
+- Device fingerprinting
+- SQLite persistence
+- Device classification (router, phone, IoT, PC)
+- Integrated into IoTManager.discover_devices()
+
+**iot/manager.py - Enhanced**
+- Now calls both LocalNetworkScanner and NetworkDiscovery
+- Merges results (deduplicates, unions ports)
+- Returns combined discovery results
+
+---
+
+## Usage Examples
+
+### Example 1: Simple Query
+
+```bash
+$ python main.py --mode repl
+
+You: What time is it?
+Assistant: I don't have access to the current time directly,
+but based on my system knowledge, I can help you...
+
+You: List all Python files in the current directory
+Assistant: I'll list the Python files for you...
+[Tool execution: list_directory]
+Found: main.py, startup.py, run_smoke_tests.py, ...
+
+You: exit
+```
+
+### Example 2: Multi-Turn Conversation
+
+```bash
+$ python main.py --mode repl
+
+You: Remember that my favorite color is blue
+Assistant: ✓ Added to memory: favorite color = blue
+
+You: What's my favorite color?
+Assistant: Your favorite color is blue (from your notes)
+
+You: Change it to green
+Assistant: ✓ Updated in memory: favorite color = green
+```
+
+### Example 3: Voice Interaction
+
+```bash
+$ python main.py --mode voice --input ptt
+
+[Press Enter to start listening]
+[Listening... speak now]
+
+You: "What devices are on my network?"
+
+[Processing speech...]
+Assistant: "Scanning your network..."
+[Tool execution: network discovery]
+Assistant: "I found 23 devices on your network including:
+           your router, phone, laptop, and 20 other devices."
+[Speaking response via TTS]
+```
+
+### Example 4: Network Discovery
+
+```python
+from iot.manager import IoTManager
+
+config = {"iot": {"enabled": True}}
+manager = IoTManager(config)
+
+# Discover all devices
+result = manager.discover_devices()
+print(f"Scanner found: {result['scanner_hosts_seen']} devices")
+print(f"ARP discovery found: {result['discovery_hosts_seen']} devices")
+print(f"Merged and registered: {result['merged_hosts_registered']} devices")
+
+for device in result['inventory']['network_hosts']:
+    print(f"  {device['ip']} - ports: {device.get('ports', [])}")
+```
+
+### Example 5: Dashboard Use
+
+```bash
+$ python main.py --mode dashboard
+
+# Open browser to http://localhost:8000
+# You'll see:
+# - Real-time conversation interface
+# - Model selector (switch between auto routing, qwen2.5, deepseek-r1, etc.)
+# - System prompt editor
+# - Memory inspection
+# - Network/device status
+# - Tool permissions
+
+# WebSocket updates as you type
 ```
 
 ---
 
 ## Troubleshooting
 
-**"Ollama Disconnected" on dashboard**
-→ Make sure `ollama serve` is running and the URL in Settings matches.
+### Common Issues & Solutions
 
-**Database connection error**
-→ Check your `.env` values and that PostgreSQL is running: `pg_isready`
+**Issue: "Cannot connect to Ollama"**
+```bash
+# Check if Ollama is running
+ollama list
 
-**Port already in use**
-→ Change `API_PORT` and `FRONT_PORT` in `.env`, or stop the existing process on Windows:
-```powershell
-Get-NetTCPConnection -LocalPort 8080 | Select-Object -ExpandProperty OwningProcess | ForEach-Object { Stop-Process -Id $_ }
-Get-NetTCPConnection -LocalPort 3000 | Select-Object -ExpandProperty OwningProcess | ForEach-Object { Stop-Process -Id $_ }
+# If not running:
+ollama serve
+
+# Verify with:
+curl http://localhost:11434/api/health
 ```
 
-**Voice input not working**
-→ Use Chrome or Edge. Safari has limited Speech Recognition support. Make sure you're on `http://localhost` (not a remote URL) or HTTPS.
+**Issue: "No module named 'chromadb'"**
+```bash
+pip install --upgrade -r requirements.txt
+```
 
-**pnpm not found**
-→ Install it: `npm install -g pnpm`
+**Issue: "Voice not working"**
+```bash
+# Check audio device
+python -c "import sounddevice; sounddevice.default_device"
+
+# Test microphone
+python voice/audio_utils.py  # if test function exists
+```
+
+**Issue: "Dashboard port 8000 already in use"**
+```bash
+# Use different port
+python main.py --mode dashboard --port 8001
+
+# Or kill the process using port 8000
+# Windows: netstat -ano | findstr :8000
+# macOS/Linux: lsof -i :8000; kill -9 <PID>
+```
+
+**Issue: "Network discovery finds no devices"**
+```bash
+# Check your network connectivity
+ping 8.8.8.8
+
+# Try specific subnet
+python -c "
+from iot.scanner import scan_network
+r = scan_network(subnet='192.168.1.0/24')
+print(f'Found {r[\"device_count\"]} devices')
+"
+```
+
+---
+
+## Testing & Quality
+
+### Run Smoke Tests
+
+```bash
+python run_smoke_tests.py
+```
+
+Expected output:
+```
+============================================================
+Test Summary:
+  Passed:  42/46
+  Failed:  0/46
+  Skipped: 4/46    (requires Ollama/audio setup)
+============================================================
+```
+
+### Test Categories
+
+- ✅ Directory structure validation
+- ✅ Module imports
+- ✅ Component instantiation
+- ✅ Config loading
+- ✅ Syntax validation
+- ✅ Requirements check
+
+---
+
+## Documentation
+
+### Internal Docs
+
+| Document | Purpose |
+|----------|---------|
+| **INSTALLATION.md** | Setup guide, requirements, operating models |
+| **GENERAL_SUMMARY_README.md** | Full-picture system summary (architecture, workflows, status) |
+| **ARCHITECTURE_AND_FLOW.md** | Technical architecture, flow diagrams |
+| **CODE_DOCUMENTATION.md** | Module-level API and implementation reference |
+| **DOCUMENTATION_INDEX.md** | Documentation navigation map |
+| **PHASE1_6_REQUIREMENTS_BASELINE.md** | Official phase requirements |
+| **PHASE9_CORE_STACK.md** | Canonical baseline for phases 7-9 |
+| **DEVELOPMENT_GUIDE.md** | Development workflow |
+| **README.md** | This file |
+
+### External Resources
+
+- **Ollama:** https://ollama.ai/
+- **ChromaDB:** https://www.trychroma.com/
+- **FastAPI:** https://fastapi.tiangolo.com/
+- **Home Assistant:** https://www.home-assistant.io/
+
+---
+
+## Project Stats
+
+```
+Total Python Files:       35
+Lines of Code:            ~8,000+
+Supported LLM Models:     20+ (via Ollama)
+Network Ports Scanned:    20 (safe defaults)
+Supported Voice Backends: 3 (edge-tts, coqui, pyttsx3)
+Database:                 SQLite + ChromaDB
+API Endpoints:            30+
+```
+
+---
+
+## Version & Status
+
+- **Current Version:** Phase 9 core stack with Phase 10 hardening work in progress
+- **Python:** 3.10+
+- **Status:** Production-ready local stack (offline-first), actively maintained
+- **Last Updated:** 2026-04-30
+- **Maintainer:** Embodied AI Project
+
+---
+
+## Quick Links
+
+- 📖 **[Complete Setup Guide](INSTALLATION.md)**
+- 🧭 **[General Summary (Full Picture)](GENERAL_SUMMARY_README.md)**
+- 🏗️ **[Architecture & Flows](ARCHITECTURE_AND_FLOW.md)**
+- 🧠 **[Code Documentation](CODE_DOCUMENTATION.md)**
+- 🔧 **[Development Guide](DEVELOPMENT_GUIDE.md)**
+- 📋 **[Phase Requirements](PHASE1_6_REQUIREMENTS_BASELINE.md)**
+- 📚 **[Documentation Index](DOCUMENTATION_INDEX.md)**
+- 🧪 **[Run Tests](run_smoke_tests.py)**
+
+---
+
+## Getting Started Right Now
+
+```bash
+# 1. Clone repo (if not already done)
+cd ai-ui-system
+
+# 2. Start Ollama (in another terminal)
+ollama serve
+
+# 3. Install and run
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+pip install -r requirements.txt
+
+# 4. Pick a mode and go!
+python main.py --mode repl        # Interactive
+# OR
+python main.py --mode dashboard   # Web UI (http://localhost:8000)
+# OR
+python main.py --mode voice       # Voice interaction
+```
+
+That's it! You're ready to interact with your local AI assistant.
+
+---
+
+**Happy AI-ing! 🚀**
