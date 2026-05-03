@@ -1,17 +1,35 @@
 [CmdletBinding()]
 param(
-    [string]$ShortcutName = "Nagatha AI Control Center",
-    [string]$DestinationDirectory = [Environment]::GetFolderPath("Desktop")
+    [string]$ShortcutName = "Embodied AI Desktop",
+    [string]$DestinationDirectory = [Environment]::GetFolderPath("Desktop"),
+    [string]$PackageRoot = "",
+    [switch]$UseSourceTree
 )
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$startScript = Join-Path $projectRoot "start.ps1"
+$iconPath = Join-Path $projectRoot "ui\desktop\assets\embodied_ai.ico"
 
-if (-not (Test-Path -LiteralPath $startScript)) {
-    throw "start.ps1 was not found at $startScript"
+if ($UseSourceTree) {
+    $targetPath = Join-Path $projectRoot "venv\Scripts\pythonw.exe"
+    if (-not (Test-Path -LiteralPath $targetPath)) {
+        $targetPath = Join-Path $projectRoot "venv\Scripts\python.exe"
+    }
+    $arguments = "`"$projectRoot\desktop_entry.py`""
+    $workingDirectory = $projectRoot
+}
+else {
+    if ([string]::IsNullOrWhiteSpace($PackageRoot)) {
+        $PackageRoot = Join-Path $projectRoot "dist\embodied-ai-package"
+    }
+    $targetPath = Join-Path $PackageRoot "embodied-ai-desktop\embodied-ai-desktop.exe"
+    if (-not (Test-Path -LiteralPath $targetPath)) {
+        throw "Desktop executable not found at $targetPath"
+    }
+    $arguments = ""
+    $workingDirectory = Split-Path -Parent $targetPath
 }
 
 if (-not (Test-Path -LiteralPath $DestinationDirectory)) {
@@ -19,18 +37,18 @@ if (-not (Test-Path -LiteralPath $DestinationDirectory)) {
 }
 
 $shortcutPath = Join-Path $DestinationDirectory ($ShortcutName + ".lnk")
-$workingDirectory = $projectRoot
-$iconPath = "$env:SystemRoot\System32\SHELL32.dll,220"
-$targetPath = (Get-Command powershell.exe -ErrorAction Stop).Source
-$arguments = "-NoExit -ExecutionPolicy Bypass -File `"$startScript`" -Action all"
-
 $shell = New-Object -ComObject WScript.Shell
 $shortcut = $shell.CreateShortcut($shortcutPath)
 $shortcut.TargetPath = $targetPath
 $shortcut.Arguments = $arguments
 $shortcut.WorkingDirectory = $workingDirectory
-$shortcut.IconLocation = $iconPath
-$shortcut.Description = "Launch Nagatha AI Control Center"
+if (Test-Path -LiteralPath $iconPath) {
+    $shortcut.IconLocation = $iconPath
+}
+else {
+    $shortcut.IconLocation = "$targetPath,0"
+}
+$shortcut.Description = "Launch Embodied AI Desktop with hidden backend + Ollama startup"
 $shortcut.Save()
 
 Write-Host "Created shortcut: $shortcutPath"
